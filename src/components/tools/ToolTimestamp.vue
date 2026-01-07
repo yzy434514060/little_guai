@@ -3,16 +3,29 @@
   功能描述: 时间戳与日期时间互转
 -->
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import CopyButton from '@/components/common/CopyButton.vue'
 
 const timestamp = ref(Date.now())
 const dateTime = ref(new Date().toISOString().slice(0, 16))
 const timestampType = ref('ms') // 'ms' | 's'
+const currentTimestamp = ref(Date.now())
 
-// 当前时间戳
-const currentTimestamp = computed(() => {
-  return timestampType.value === 'ms' ? Date.now() : Math.floor(Date.now() / 1000)
+// 定时更新当前时间戳
+let timer = null
+onMounted(() => {
+  timer = setInterval(() => {
+    currentTimestamp.value = Date.now()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
+
+// 格式化当前时间戳显示
+const formattedCurrentTimestamp = computed(() => {
+  return timestampType.value === 'ms' ? currentTimestamp.value : Math.floor(currentTimestamp.value / 1000)
 })
 
 // 时间戳转日期
@@ -61,7 +74,7 @@ const useNow = () => {
         <!-- 当前时间 -->
         <div class="p-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
           <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">当前时间戳</div>
-          <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ currentTimestamp }}</div>
+          <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ formattedCurrentTimestamp }}</div>
           <button @click="useNow" class="mt-2 text-sm text-primary-600 dark:text-primary-400 hover:underline">使用当前时间</button>
         </div>
 

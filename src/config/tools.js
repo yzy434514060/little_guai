@@ -36,6 +36,13 @@ export const toolCategories = [
         description: '统计文本字数、字符数、行数',
         component: 'ToolWordCount',
         keywords: ['word', 'count', '字数', '统计']
+      },
+      {
+        id: 'text-case',
+        name: '大小写转换',
+        description: '转换文本为驼峰、蛇形等命名格式',
+        component: 'ToolTextCase',
+        keywords: ['case', 'camel', 'pascal', 'snake', 'kebab', '大小写', '驼峰', '命名']
       }
     ]
   },

@@ -62,7 +62,7 @@ watch(() => props.modelValue, (newVal) => {
     <button
       @click="showPicker = !showPicker"
       type="button"
-      class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm text-left hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+      class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-base font-mono tracking-wider text-left hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
     >
       {{ formattedTime }}
     </button>

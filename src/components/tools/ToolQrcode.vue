@@ -5,6 +5,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 import QRCode from 'qrcode'
 
 const input = useLocalStorage('tool-qrcode-input', 'https://github.com')
@@ -54,12 +55,11 @@ watch([input, size, errorLevel], generate, { immediate: true })
         <!-- 输入区 -->
         <div>
           <label class="block text-sm font-medium mb-2">输入内容</label>
-          <textarea
+          <ResizableTextarea
             v-model="input"
             placeholder="输入文本或 URL..."
-            rows="4"
-            class="tool-textarea"
-          ></textarea>
+            :rows="6"
+          />
         </div>
 
         <!-- 配置选项 -->

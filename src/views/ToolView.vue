@@ -8,7 +8,6 @@ import { useRoute } from 'vue-router'
 import { defineAsyncComponent } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
-import AppFooter from '@/components/layout/AppFooter.vue'
 import { getToolById } from '@/config/tools'
 
 const route = useRoute()
@@ -48,36 +47,36 @@ watch(() => route.params.id, () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="flex flex-col h-screen">
     <AppHeader @search="handleSearch" @toggle-sidebar="toggleSidebar" />
 
-    <div class="flex flex-1">
+    <div class="flex flex-1 overflow-hidden">
       <AppSidebar
         :search-query="searchQuery"
         :is-open="sidebarOpen"
         @close="closeSidebar"
       />
 
-      <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
-        <div class="max-w-5xl mx-auto">
-          <!-- 工具未找到 -->
-          <div v-if="!currentTool" class="text-center py-16">
-            <div class="text-6xl mb-4">🔍</div>
-            <h2 class="text-2xl font-bold mb-2">工具未找到</h2>
-            <p class="text-gray-600 dark:text-gray-400 mb-6">
-              抱歉，您访问的工具不存在
-            </p>
-            <router-link to="/" class="btn-primary">
-              返回首页
-            </router-link>
+      <main class="flex-1 overflow-y-auto">
+        <div class="min-h-full p-4 md:p-6 lg:p-8">
+          <div class="max-w-[1600px] mx-auto">
+              <!-- 工具未找到 -->
+              <div v-if="!currentTool" class="text-center py-16">
+                <div class="text-6xl mb-4">🔍</div>
+                <h2 class="text-2xl font-bold mb-2">工具未找到</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                  抱歉，您访问的工具不存在
+                </p>
+                <router-link to="/" class="btn-primary">
+                  返回首页
+                </router-link>
+              </div>
+
+              <!-- 加载工具组件 -->
+              <component v-else :is="toolComponent" />
+            </div>
           </div>
-
-          <!-- 加载工具组件 -->
-          <component v-else :is="toolComponent" />
-        </div>
-      </main>
+        </main>
     </div>
-
-    <AppFooter />
   </div>
 </template>

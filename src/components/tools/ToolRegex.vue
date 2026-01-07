@@ -5,6 +5,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 
 const pattern = useLocalStorage('tool-regex-pattern', '\\d+')
 const flags = ref({ g: true, i: false, m: false })
@@ -156,12 +157,11 @@ const usePattern = (p) => {
         <!-- 测试字符串 -->
         <div>
           <label class="block text-sm font-medium mb-2">测试字符串</label>
-          <textarea
+          <ResizableTextarea
             v-model="testString"
             placeholder="输入要测试的字符串..."
-            rows="6"
-            class="tool-textarea"
-          ></textarea>
+            :rows="10"
+          />
         </div>
 
         <!-- 匹配结果 -->

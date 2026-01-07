@@ -3,7 +3,7 @@
   功能：显示距离下班的剩余时间，支持自定义工作时间
 -->
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
 // 默认工作时间段
 const DEFAULT_WORK_PERIODS = [
@@ -18,6 +18,7 @@ const workPeriods = ref(
 
 const showSettings = ref(false)
 const currentTime = ref(new Date())
+const settingsRef = ref(null)
 
 // 定时更新当前时间
 let timer = null
@@ -29,6 +30,27 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+})
+
+// 点击外部关闭设置面板
+const handleClickOutside = (event) => {
+  if (settingsRef.value && !settingsRef.value.contains(event.target)) {
+    showSettings.value = false
+  }
+}
+
+watch(showSettings, (newVal) => {
+  if (newVal) {
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+  } else {
+    document.removeEventListener('click', handleClickOutside)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 // 将时间字符串转换为秒数
@@ -129,6 +151,7 @@ const resetToDefault = () => {
     <!-- 设置面板 -->
     <div
       v-if="showSettings"
+      ref="settingsRef"
       class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-4 z-50"
     >
       <div class="flex items-center justify-between mb-4">

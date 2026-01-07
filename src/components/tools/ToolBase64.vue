@@ -6,6 +6,7 @@
 import { ref } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import CopyButton from '@/components/common/CopyButton.vue'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 
 const input = useLocalStorage('tool-base64-input', '')
 const output = ref('')
@@ -51,12 +52,11 @@ const clear = () => {
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-2">输入文本</label>
-          <textarea
+          <ResizableTextarea
             v-model="input"
             placeholder="输入要编码或解码的文本..."
-            rows="8"
-            class="tool-textarea"
-          ></textarea>
+            :rows="10"
+          />
         </div>
 
         <!-- 操作按钮 -->
@@ -77,12 +77,11 @@ const clear = () => {
             <label class="block text-sm font-medium">输出结果</label>
             <CopyButton :text="output" />
           </div>
-          <textarea
+          <ResizableTextarea
             v-model="output"
-            readonly
-            rows="8"
-            class="tool-textarea"
-          ></textarea>
+            :readonly="true"
+            :rows="15"
+          />
         </div>
       </div>
     </div>

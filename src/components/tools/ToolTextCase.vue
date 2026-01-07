@@ -6,6 +6,7 @@
 import { ref } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import CopyButton from '@/components/common/CopyButton.vue'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 
 const input = useLocalStorage('tool-text-case-input', '')
 
@@ -109,13 +110,12 @@ const autoConvert = () => {
         <!-- 输入区 -->
         <div>
           <label class="block text-sm font-medium mb-2">输入文本</label>
-          <textarea
+          <ResizableTextarea
             v-model="input"
             @input="autoConvert"
             placeholder="输入要转换的文本，例如：hello world 或 HelloWorld"
-            rows="4"
-            class="tool-textarea"
-          ></textarea>
+            :rows="6"
+          />
         </div>
 
         <!-- 操作按钮 -->

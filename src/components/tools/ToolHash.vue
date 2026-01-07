@@ -6,6 +6,7 @@
 import { ref, computed } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import CopyButton from '@/components/common/CopyButton.vue'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 import CryptoJS from 'crypto-js'
 
 const input = useLocalStorage('tool-hash-input', '')
@@ -77,12 +78,11 @@ const clear = () => {
         <!-- 文本输入 -->
         <div v-if="inputType === 'text'">
           <label class="block text-sm font-medium mb-2">输入文本</label>
-          <textarea
+          <ResizableTextarea
             v-model="input"
             placeholder="输入要计算哈希的文本..."
-            rows="8"
-            class="tool-textarea"
-          ></textarea>
+            :rows="12"
+          />
         </div>
 
         <!-- 文件上传 -->

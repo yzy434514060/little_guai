@@ -5,6 +5,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useLocalStorage } from '@/composables/useLocalStorage'
+import ResizableTextarea from '@/components/common/ResizableTextarea.vue'
 
 const input = useLocalStorage('tool-word-count-input', '')
 
@@ -37,12 +38,11 @@ const clear = () => {
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-2">输入文本</label>
-          <textarea
+          <ResizableTextarea
             v-model="input"
             placeholder="输入要统计的文本..."
-            rows="12"
-            class="tool-textarea"
-          ></textarea>
+            :rows="15"
+          />
         </div>
 
         <!-- 操作按钮 -->

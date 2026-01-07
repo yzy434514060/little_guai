@@ -4,6 +4,7 @@
 -->
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import TimePicker from './TimePicker.vue'
 
 // 默认工作时间段
 const DEFAULT_WORK_PERIODS = [
@@ -19,6 +20,9 @@ const workPeriods = ref(
 const showSettings = ref(false)
 const currentTime = ref(new Date())
 const settingsRef = ref(null)
+
+// 编辑中的工作时间段（临时值）
+const editingPeriods = ref(JSON.parse(JSON.stringify(workPeriods.value)))
 
 // 定时更新当前时间
 let timer = null
@@ -41,6 +45,8 @@ const handleClickOutside = (event) => {
 
 watch(showSettings, (newVal) => {
   if (newVal) {
+    // 打开设置时，复制当前值到编辑区
+    editingPeriods.value = JSON.parse(JSON.stringify(workPeriods.value))
     setTimeout(() => {
       document.addEventListener('click', handleClickOutside)
     }, 0)
@@ -123,14 +129,14 @@ const statusInfo = computed(() => {
 
 // 保存设置
 const saveSettings = () => {
+  workPeriods.value = JSON.parse(JSON.stringify(editingPeriods.value))
   localStorage.setItem('work-periods', JSON.stringify(workPeriods.value))
   showSettings.value = false
 }
 
 // 重置为默认值
 const resetToDefault = () => {
-  workPeriods.value = [...DEFAULT_WORK_PERIODS]
-  localStorage.setItem('work-periods', JSON.stringify(workPeriods.value))
+  editingPeriods.value = JSON.parse(JSON.stringify(DEFAULT_WORK_PERIODS))
 }
 </script>
 
@@ -139,11 +145,11 @@ const resetToDefault = () => {
     <!-- 倒计时显示 -->
     <button
       @click="showSettings = !showSettings"
-      class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-sm"
+      class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-sm"
       :title="statusInfo.text"
     >
       <span>{{ statusInfo.icon }}</span>
-      <span class="font-mono font-semibold">
+      <span class="font-mono font-semibold text-base tracking-wider">
         {{ countdown.status === 'after_work' ? '下班啦' : formattedTime }}
       </span>
     </button>
@@ -152,7 +158,7 @@ const resetToDefault = () => {
     <div
       v-if="showSettings"
       ref="settingsRef"
-      class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-4 z-50"
+      class="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg p-4 z-50"
     >
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-semibold">工作时间设置</h3>
@@ -171,17 +177,9 @@ const resetToDefault = () => {
         <div>
           <label class="block text-sm font-medium mb-2">上午</label>
           <div class="flex items-center gap-2">
-            <input
-              v-model="workPeriods[0].start"
-              type="time"
-              class="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm"
-            >
+            <TimePicker v-model="editingPeriods[0].start" />
             <span class="text-gray-500">-</span>
-            <input
-              v-model="workPeriods[0].end"
-              type="time"
-              class="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm"
-            >
+            <TimePicker v-model="editingPeriods[0].end" />
           </div>
         </div>
 
@@ -189,17 +187,9 @@ const resetToDefault = () => {
         <div>
           <label class="block text-sm font-medium mb-2">下午</label>
           <div class="flex items-center gap-2">
-            <input
-              v-model="workPeriods[1].start"
-              type="time"
-              class="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm"
-            >
+            <TimePicker v-model="editingPeriods[1].start" />
             <span class="text-gray-500">-</span>
-            <input
-              v-model="workPeriods[1].end"
-              type="time"
-              class="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg text-sm"
-            >
+            <TimePicker v-model="editingPeriods[1].end" />
           </div>
         </div>
 

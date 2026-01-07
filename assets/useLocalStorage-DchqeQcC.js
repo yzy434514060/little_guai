@@ -1,1 +1,0 @@
-import{r as l,w as s}from"./index-wnxpc7mO.js";function n(t,r=""){const e=localStorage.getItem(t),a=l(e!==null?e:r);return s(a,o=>{o==null?localStorage.removeItem(t):localStorage.setItem(t,o)}),a}export{n as u};

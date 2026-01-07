@@ -1,11 +1,12 @@
 <!--
   顶部导航栏组件
-  功能：显示 Logo、搜索框、主题切换、GitHub 链接
+  功能：显示 Logo、搜索框、主题切换、GitHub 链接、工作倒计时
 -->
 <script setup>
 import { ref } from 'vue'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import SearchInput from '@/components/common/SearchInput.vue'
+import WorkCountdown from '@/components/common/WorkCountdown.vue'
 
 const emit = defineEmits(['search', 'toggle-sidebar'])
 </script>
@@ -38,6 +39,7 @@ const emit = defineEmits(['search', 'toggle-sidebar'])
 
       <!-- 右侧操作 -->
       <div class="flex items-center gap-2">
+        <WorkCountdown class="hidden sm:block" />
         <ThemeToggle />
 
         <a

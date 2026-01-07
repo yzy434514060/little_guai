@@ -176,9 +176,9 @@ const resetToDefault = () => {
         <!-- 上午时间段 -->
         <div>
           <label class="block text-sm font-medium mb-2">上午</label>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center justify-center gap-2">
             <TimePicker v-model="editingPeriods[0].start" />
-            <span class="text-gray-500">-</span>
+            <span class="text-gray-500">- - - </span>
             <TimePicker v-model="editingPeriods[0].end" />
           </div>
         </div>
@@ -186,9 +186,9 @@ const resetToDefault = () => {
         <!-- 下午时间段 -->
         <div>
           <label class="block text-sm font-medium mb-2">下午</label>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center justify-center gap-2">
             <TimePicker v-model="editingPeriods[1].start" />
-            <span class="text-gray-500">-</span>
+            <span class="text-gray-500">- - - </span>
             <TimePicker v-model="editingPeriods[1].end" />
           </div>
         </div>

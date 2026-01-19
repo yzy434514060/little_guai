@@ -120,6 +120,13 @@ export const toolCategories = [
         description: 'MD5/SHA-1/SHA-256 计算',
         component: 'ToolHash',
         keywords: ['hash', 'md5', 'sha', '哈希']
+      },
+      {
+        id: 'm3u8',
+        name: 'M3U8 视频测试',
+        description: '测试 M3U8 多清晰度视频播放',
+        component: 'ToolM3u8',
+        keywords: ['m3u8', 'video', 'hls', '视频', '测试', '播放']
       }
     ]
   }

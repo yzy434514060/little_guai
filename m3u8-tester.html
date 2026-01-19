@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M3U8 多清晰度视频测试工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+            font-family: monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-header {
+            margin-bottom: 15px;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .video-info {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .video-url {
+            font-size: 11px;
+            color: #999;
+            word-break: break-all;
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 M3U8 多清晰度视频测试工具</h1>
+
+        <!-- 自动解析模式 -->
+        <div id="autoPanel" class="panel">
+            <div class="input-group">
+                <label>主 M3U8 URL（包含签名参数）</label>
+                <input type="text" id="masterUrl" placeholder="https://domain.com/path/to/adp.10.m3u8?t=xxx&sign=yyy">
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="autoParseAndTest()">🚀 解析并测试</button>
+                <button class="btn-secondary" onclick="switchToManual()">✋ 切换到手动模式</button>
+            </div>
+            <div id="autoError"></div>
+        </div>
+
+        <!-- 手动模式 -->
+        <div id="manualPanel" class="panel hidden">
+            <div class="input-group">
+                <label>主 M3U8 URL（用于提取基础路径）</label>
+                <input type="text" id="manualBaseUrl" placeholder="https://domain.com/path/to/adp.10.m3u8?t=xxx&sign=yyy">
+            </div>
+            <div class="input-group">
+                <label>主 M3U8 内容（粘贴完整内容）</label>
+                <textarea id="manualContent" placeholder="#EXTM3U&#10;#EXT-X-STREAM-INF:BANDWIDTH=399312,RESOLUTION=318x240&#10;video_10_0.m3u8?sign=aaa&t=bbb"></textarea>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="manualParseAndTest()">🎯 开始测试</button>
+                <button class="btn-secondary" onclick="switchToAuto()">🔙 返回自动模式</button>
+            </div>
+            <div id="manualError"></div>
+        </div>
+
+        <!-- 视频列表 -->
+        <div id="videoGrid" class="video-grid"></div>
+    </div>
+
+    <script>
+        // 提取基础路径
+        function getBasePath(url) {
+            const lastSlashIndex = url.indexOf('?') > -1
+                ? url.substring(0, url.indexOf('?')).lastIndexOf('/')
+                : url.lastIndexOf('/');
+            return url.substring(0, lastSlashIndex + 1);
+        }
+
+        // 解析 M3U8 内容
+        function parseM3U8(content, basePath) {
+            const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+            const streams = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXT-X-STREAM-INF:')) {
+                    const info = lines[i];
+                    const urlLine = lines[i + 1];
+
+                    if (!urlLine || urlLine.startsWith('#')) continue;
+
+                    // 提取分辨率和码率
+                    const resolutionMatch = info.match(/RESOLUTION=(\d+x\d+)/);
+                    const bandwidthMatch = info.match(/BANDWIDTH=(\d+)/);
+
+                    const resolution = resolutionMatch ? resolutionMatch[1] : '未知';
+                    const bandwidth = bandwidthMatch ? Math.round(bandwidthMatch[1] / 1000) : 0;
+
+                    // 构建完整 URL
+                    const fullUrl = urlLine.startsWith('http') ? urlLine : basePath + urlLine;
+
+                    streams.push({
+                        resolution,
+                        bandwidth,
+                        url: fullUrl
+                    });
+
+                    console.log(`解析到清晰度: ${resolution}, 码率: ${bandwidth}kbps, URL: ${fullUrl}`);
+                }
+            }
+
+            return streams;
+        }
+
+        // 自动解析并测试
+        async function autoParseAndTest() {
+            const url = document.getElementById('masterUrl').value.trim();
+            const errorDiv = document.getElementById('autoError');
+            errorDiv.innerHTML = '';
+
+            if (!url) {
+                errorDiv.innerHTML = '<div class="error-message">请输入主 M3U8 URL</div>';
+                return;
+            }
+
+            console.log('开始获取主 M3U8:', url);
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const content = await response.text();
+                console.log('主 M3U8 内容:', content);
+
+                const basePath = getBasePath(url);
+                console.log('基础路径:', basePath);
+
+                const streams = parseM3U8(content, basePath);
+
+                if (streams.length === 0) {
+                    throw new Error('未找到任何视频流');
+                }
+
+                renderVideos(streams);
+            } catch (error) {
+                console.error('自动解析失败:', error);
+                errorDiv.innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ 自动解析失败</strong><br>
+                        错误: ${error.message}<br>
+                        ${error.message.includes('CORS') || error.message.includes('Failed to fetch')
+                            ? '可能是 CORS 限制，请尝试切换到手动模式' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // 手动解析并测试
+        function manualParseAndTest() {
+            const baseUrl = document.getElementById('manualBaseUrl').value.trim();
+            const content = document.getElementById('manualContent').value.trim();
+            const errorDiv = document.getElementById('manualError');
+            errorDiv.innerHTML = '';
+
+            if (!baseUrl || !content) {
+                errorDiv.innerHTML = '<div class="error-message">请填写完整信息</div>';
+                return;
+            }
+
+            try {
+                const basePath = getBasePath(baseUrl);
+                console.log('手动模式 - 基础路径:', basePath);
+                console.log('手动模式 - M3U8 内容:', content);
+
+                const streams = parseM3U8(content, basePath);
+
+                if (streams.length === 0) {
+                    throw new Error('未找到任何视频流');
+                }
+
+                renderVideos(streams);
+            } catch (error) {
+                console.error('手动解析失败:', error);
+                errorDiv.innerHTML = `<div class="error-message">❌ 解析失败: ${error.message}</div>`;
+            }
+        }
+
+        // 渲染视频列表
+        function renderVideos(streams) {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = '';
+
+            streams.forEach((stream, index) => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.id = `video-card-${index}`;
+
+                card.innerHTML = `
+                    <div class="video-header">
+                        <div class="video-title">清晰度 ${index + 1}: ${stream.resolution}</div>
+                        <div class="video-info">码率: ${stream.bandwidth} kbps</div>
+                        <div class="video-url">${stream.url}</div>
+                    </div>
+                    <video id="video-${index}" controls></video>
+                    <div id="status-${index}" class="status status-loading">⏳ 加载中...</div>
+                `;
+
+                grid.appendChild(card);
+
+                // 加载视频
+                loadVideo(index, stream.url);
+            });
+        }
+
+        // 加载视频
+        function loadVideo(index, url) {
+            const video = document.getElementById(`video-${index}`);
+            const status = document.getElementById(`status-${index}`);
+
+            console.log(`开始加载视频 ${index}:`, url);
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    enableWorker: true,
+                    maxLoadingDelay: 10,
+                    manifestLoadingTimeOut: 10000,
+                    manifestLoadingMaxRetry: 2
+                });
+
+                hls.loadSource(url);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    console.log(`视频 ${index} 加载成功`);
+                    status.className = 'status status-success';
+                    status.textContent = '✅ 加载成功';
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error(`视频 ${index} 加载失败:`, data);
+                    status.className = 'status status-error';
+                    status.textContent = `❌ 加载失败: ${data.type} - ${data.details}`;
+                });
+
+                // 超时处理
+                setTimeout(() => {
+                    if (status.className.includes('loading')) {
+                        console.error(`视频 ${index} 加载超时`);
+                        status.className = 'status status-error';
+                        status.textContent = '❌ 加载超时（10秒）';
+                        hls.destroy();
+                    }
+                }, 10000);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Safari 原生支持
+                video.src = url;
+                video.addEventListener('loadedmetadata', () => {
+                    console.log(`视频 ${index} 加载成功（原生）`);
+                    status.className = 'status status-success';
+                    status.textContent = '✅ 加载成功';
+                });
+                video.addEventListener('error', () => {
+                    console.error(`视频 ${index} 加载失败（原生）`);
+                    status.className = 'status status-error';
+                    status.textContent = '❌ 加载失败';
+                });
+            } else {
+                status.className = 'status status-error';
+                status.textContent = '❌ 浏览器不支持 HLS';
+            }
+        }
+
+        // 切换模式
+        function switchToManual() {
+            document.getElementById('autoPanel').classList.add('hidden');
+            document.getElementById('manualPanel').classList.remove('hidden');
+
+            // 复制 URL 到手动模式
+            const url = document.getElementById('masterUrl').value;
+            document.getElementById('manualBaseUrl').value = url;
+        }
+
+        function switchToAuto() {
+            document.getElementById('manualPanel').classList.add('hidden');
+            document.getElementById('autoPanel').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
